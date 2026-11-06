@@ -6,6 +6,8 @@ from dotenv import load_dotenv
 load_dotenv()
 client = anthropic.Anthropic()
 
+
+
 def talk(query):
     message = client.messages.create(
         model= "claude-haiku-5-5",

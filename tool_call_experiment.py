@@ -16,15 +16,35 @@ tools = [{
 
 ]
 
+
+
+
+messages = [{"role": "user", "content": "what is the weather of Mumbai?"}]
+
+
+
 client = anthropic.Anthropic()
+while True:
+    message = client.messages.create(
+        model= "claude-haiku-5-5",
+        max_tokens= 200,
+        tools = tools,
+        messages=messages
+    )
 
-message = client.messages.create(
-    model= "claude-haiku-5-5",
-    max_tokens= 200,
-    tools = tools,
-    messages=[{"role": "user", "content": "What's the weather in Mumbai?"}]
+    if message.stop_reason != "tool_use":
+        break
 
-)
+    messages.append({"role": "assistant", "content":  message.content})
 
-print(message)
-print(type(message))
+    for block in message.content:
+        if block.type == "tool_use":
+            result = f"The weather 30deg C in {block.input['city']}"
+            messages.append({"role": "user",  "content": [{
+                    "type": "tool_result",
+                    "tool_use_id": block.id,
+                    "content": result,
+                }] })
+
+
+print(message.content)
